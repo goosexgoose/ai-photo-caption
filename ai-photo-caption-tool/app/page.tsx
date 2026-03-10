@@ -130,8 +130,12 @@ export default function Home() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
 
+  const [aboutOpen, setAboutOpen] = useState(false);
+
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [isIos, setIsIos] = useState(false);
+
+  const [loadingStep, setLoadingStep] = useState(0);
 
   const canGenerate = useMemo(() => !!file && !loading, [file, loading]);
 
@@ -167,6 +171,21 @@ export default function Home() {
       setShowInstallBanner(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      setLoadingStep(0);
+      return;
+    }
+
+    const id = window.setInterval(() => {
+      setLoadingStep((prev) => (prev + 1) % 3);
+    }, 1200);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, [loading]);
 
   function showToast(message: string, duration = 900) {
     setToast(message);
@@ -334,7 +353,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-50">
-      <div className="mx-auto w-full max-w-md px-4 pb-28 pt-6">
+      <div className="mx-auto w-full max-w-md px-4 pb-44 pt-6">
         <header className="mb-4">
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -345,13 +364,22 @@ export default function Home() {
                 Caption (A/B/C) + alt-text + hashtags. Mobile-first.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setHistoryOpen(true)}
-              className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-3 py-1.5 text-xs font-medium text-neutral-100"
-            >
-              History
-            </button>
+            <div className="flex flex-col items-end gap-1">
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(true)}
+                className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-3 py-1.5 text-xs font-medium text-neutral-100"
+              >
+                History
+              </button>
+              <button
+                type="button"
+                onClick={() => setAboutOpen(true)}
+                className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-3 py-1 text-[11px] font-medium text-neutral-200"
+              >
+                About
+              </button>
+            </div>
           </div>
         </header>
 
@@ -447,6 +475,26 @@ export default function Home() {
             </div>
           )}
 
+          {/* AI thinking panel */}
+          {loading && (
+            <div className="rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
+              <div className="mb-2 flex items-center gap-2">
+                <div className="relative h-5 w-5">
+                  <span className="absolute inset-0 rounded-full border border-neutral-700" />
+                  <span className="absolute inset-0 animate-ping rounded-full border border-sky-500/60" />
+                </div>
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-400">
+                  AI is thinking
+                </p>
+              </div>
+              <p className="text-sm text-neutral-200">
+                {loadingStep === 0 && "Analyzing photo…"}
+                {loadingStep === 1 && "Writing caption variants…"}
+                {loadingStep === 2 && "Generating alt text and hashtags…"}
+              </p>
+            </div>
+          )}
+
           {/* Variant tabs */}
           <div className="flex gap-2">
             {(["A", "B", "C"] as const).map((label, idx) => {
@@ -518,6 +566,42 @@ export default function Home() {
             onCopy={() => copyText(combinedText)}
           />
         </section>
+
+        {/* Footer (scrollable, above bottom bar) */}
+        <footer className="mt-8 border-t border-neutral-900 bg-neutral-950/95 px-0 pb-4 pt-4 text-[11px] text-neutral-400">
+          <div className="space-y-1">
+            <p className="text-neutral-200">AI Photo Caption</p>
+            <p>Built by Kaiya Li</p>
+            <div className="flex flex-wrap gap-3 text-neutral-400">
+              <a
+                href="mailto:lilysome2u@gmail.com"
+                className="underline-offset-2 hover:text-neutral-200 hover:underline"
+              >
+                Contact
+              </a>
+              <a
+                href="https://github.com/goosexgoose/ai-photo-caption"
+                target="_blank"
+                rel="noreferrer"
+                className="underline-offset-2 hover:text-neutral-200 hover:underline"
+              >
+                GitHub
+              </a>
+              <a
+                href="https://github.com/goosexgoose/ai-photo-caption/issues"
+                target="_blank"
+                rel="noreferrer"
+                className="underline-offset-2 hover:text-neutral-200 hover:underline"
+              >
+                Report issue
+              </a>
+            </div>
+            <p className="text-neutral-500">
+              © {new Date().getFullYear()} Kaiya Li. All rights reserved.
+            </p>
+            <p className="text-neutral-500">Version v1.0.0</p>
+          </div>
+        </footer>
       </div>
 
       {/* Toast */}
@@ -654,6 +738,39 @@ export default function Home() {
         </div>
       )}
 
+      {/* About modal */}
+      {aboutOpen && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-md rounded-3xl border border-neutral-800 bg-neutral-950 px-4 pb-4 pt-3 shadow-xl shadow-black/60">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-neutral-50">About AI Photo Caption</h2>
+              <button
+                type="button"
+                onClick={() => setAboutOpen(false)}
+                className="rounded-lg border border-neutral-800 px-2 py-1 text-[11px] text-neutral-200"
+              >
+                Close
+              </button>
+            </div>
+            <div className="space-y-2 text-xs text-neutral-200">
+              <p>
+                This tool turns your photos into ready-to-post captions, accessible alt text, and
+                hashtags that match your chosen style.
+              </p>
+              <p className="text-neutral-300">
+                <span className="font-semibold text-neutral-50">Main features:</span>{" "}
+                A/B/C caption variants, alt text, hashtag generation, mobile-first PWA, history, and
+                one-tap sharing.
+              </p>
+              <p className="text-neutral-300">
+                <span className="font-semibold text-neutral-50">Technologies:</span>{" "}
+                Next.js App Router, OpenAI vision models, Tailwind CSS, and PWA manifest support.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bottom action bar */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-neutral-800 bg-neutral-950/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-md items-center gap-2 px-4 py-3">
@@ -698,8 +815,10 @@ export default function Home() {
           >
             {loading ? "Generating…" : "Generate"}
           </button>
+          <p className="mt-2 text-[11px] text-neutral-500">
+            AI captions may occasionally be inaccurate. Please review before publishing.
+          </p>
         </div>
-      </div>
     </main>
   );
 }
