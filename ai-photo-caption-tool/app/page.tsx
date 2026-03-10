@@ -420,7 +420,7 @@ export default function Home() {
 
         {/* Preview */}
         <section className="rounded-2xl border border-neutral-800 bg-neutral-900/40 p-3">
-          <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-neutral-900">
+          <div className="aspect-4/3 w-full overflow-hidden rounded-xl bg-neutral-900">
             {previewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -819,6 +819,7 @@ export default function Home() {
             AI captions may occasionally be inaccurate. Please review before publishing.
           </p>
         </div>
+      </div>
     </main>
   );
 }
