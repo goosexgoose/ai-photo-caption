@@ -24,7 +24,7 @@ The app is built as a **Progressive Web App (PWA)** so it can be installed direc
 
 ## 🚀 Live Demo
 
-https://ai-photo-captions.vercel.app/
+[https://ai-photo-captions.vercel.app/](https://ai-photo-caption-q1tz.vercel.app/)
 
 You can also install it on mobile:
 
